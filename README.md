@@ -1,52 +1,60 @@
-# Posts & Comments: Android App with Offline Caching
+# Places Around You
 
-An Android app (Java) that loads posts and comments from a REST API and caches comments in a local **SQLite** database, so they can still be read without an internet connection. Built as a course project in 2019.
+An Android app (Java) that finds **venues near the user's current location** with the **Foursquare Places API**, shows them in a scrolling list, and caches results in **SQLite** so they still load offline. Built as a mobile development course project in 2019. The app's interface is in Persian.
 
 ## Features
 
-- **REST API client:** fetches posts and comments as JSON from the public [JSONPlaceholder](https://jsonplaceholder.typicode.com) API using **Volley**.
-- **List and grid views:** one button switches the posts screen between a `ListView` and a `GridView` (`ViewSwitcher`).
-- **Comments screen:** tap a post to open its comments.
-- **Offline caching with SQLite:** comments are saved locally the first time they are downloaded. When a post is opened again, the app decides where to load from:
+- **Location-aware search:** gets the device location with Google Play Services (`FusedLocationProviderClient`) and requests nearby venues from Foursquare.
+- **Live location updates:** if the user moves more than 100 m, the list refreshes for the new position.
+- **Infinite scroll:** when the user reaches the end of the list, the app samples a random point in a gradually widening ring around them and loads more venues, skipping ones already shown.
+- **Venue details:** tapping a venue shows its address, phone number and categories.
+- **Similar places:** the details screen recommends similar venues using Foursquare's `venues/{id}/similar` endpoint.
+- **Offline caching:**
+  - venues and their details are stored in SQLite;
+  - the last known location is saved in `SharedPreferences`;
+  - if the user hasn't moved or there is no network, the list loads from the local database instead of the API.
 
-| Situation | Source |
-|---|---|
-| Comments not cached yet | Server (then saved to SQLite) |
-| Cached and the device is offline | SQLite |
-| Cached, online, and more than 10 s since the last server request | Server |
-| Cached, online, requested again within 10 s | SQLite |
+## Architecture
 
-- **Team dialog:** shows the names of the project members.
+The code is organized into Model, View and Controller packages:
+
+```
+app/src/main/java/mobileProject/places/
+├── Controller/
+│   ├── DataProvider.java          # Location, Foursquare API calls (search, details, similar), cache logic
+│   ├── AppConf.java               # Application class: database setup
+│   └── RecyclerViewAdapter/       # VenueAdapter, MarginDecoration
+├── Model/
+│   ├── Venue.java
+│   ├── Database/                  # SQLiteOpenHelper, DAO and queries for the venues table
+│   └── Preferences/               # Last known location (SharedPreferences)
+└── View/
+    ├── MainActivity.java          # Nearby venues list, location updates, infinite scroll
+    └── DetailedVenueActivity.java # Venue details and similar places
+```
 
 ## Tech stack
 
-Java · Android SDK 28 (min SDK 22) · Volley · SQLite · Android Support Library · Gradle
-
-## Project structure
-
-```
-app/src/main/java/com/example/myapplication/
-├── MainActivity.java      # Loads posts, list/grid switch, chooses server vs. cache for comments
-├── commentActivity.java   # Shows comments from the server or from SQLite and caches new ones
-├── SubApp.java            # Application class: creates the SQLite comment table
-├── post.java, comment.java # Data classes
-└── dialog.java            # Team members dialog
-```
+Java · Android SDK 28 (min SDK 15) · Google Play Services Location · Foursquare API v2 · Fast Android Networking · RecyclerView/CardView · SQLite · SharedPreferences
 
 ## Running it
 
-1. Open the project in Android Studio.
-2. Let Gradle sync, then run the `app` configuration on an emulator or device with internet access.
-3. To see the cache in action, open a post's comments, turn on airplane mode and open the same post again.
+1. Open the project folder in Android Studio and let it sync with Gradle (Android Studio uses its own Gradle installation).
+2. Add your Foursquare credentials to `local.properties` (this file is not committed). See `local.properties.example`:
+   ```
+   foursquare.clientId=YOUR_FOURSQUARE_CLIENT_ID
+   foursquare.clientSecret=YOUR_FOURSQUARE_CLIENT_SECRET
+   ```
+3. Run the `app` configuration on a device or emulator with location enabled, and allow location access.
 
-Note: the comment cache is reset each time the app starts.
+Note: the app uses Foursquare's v2 API (client ID and secret), which was current when it was built. New Foursquare accounts use the newer Places API with API keys, so the request code would need small updates to run today.
 
 ## Team
 
-Bahar Jahani, Amirreza Kazemi and Preni Golazizian.
+Group project by **Bahar Jahani** and **Amirreza Kazemi**, mobile development course, 2019.
 
 ## Changes before publishing
 
-- Fixed a crash on first launch: the app dropped the comment table before it existed.
-- Switched SQL queries to parameterized queries, so comments with quotes or apostrophes are cached correctly.
-- Removed Android Studio project files from version control.
+- Moved the Foursquare client ID and secret out of the source code into `local.properties`, which is read at build time through `BuildConfig`.
+- Removed build outputs, IDE files and the machine-specific `local.properties`.
+- Kept only the files needed to understand and build the app: source code, layouts, resources and build scripts.
