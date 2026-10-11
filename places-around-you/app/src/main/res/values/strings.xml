@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Places</string>
+    <string name="edit_info_button">اطلاعات ناقص است؟ برای تکمیل اینجا کلیک کنید</string>
+    <string name="venue_address_title">آدرس:</string>
+    <string name="venue_phone_title">تلفن:</string>
+    <string name="venue_category_title">دسته بندی ها:</string>
+    <string name="no_content">در انتظار دریافت اطلاعات</string>
+    <string name="venues_around_you">مکان های اطراف شما</string>
+</resources>
