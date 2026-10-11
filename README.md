@@ -52,9 +52,3 @@ Note: the app uses Foursquare's v2 API (client ID and secret), which was current
 ## Team
 
 Group project by **Bahar Jahani** and **Amirreza Kazemi**, mobile development course, 2019.
-
-## Changes before publishing
-
-- Moved the Foursquare client ID and secret out of the source code into `local.properties`, which is read at build time through `BuildConfig`.
-- Removed build outputs, IDE files and the machine-specific `local.properties`.
-- Kept only the files needed to understand and build the app: source code, layouts, resources and build scripts.
