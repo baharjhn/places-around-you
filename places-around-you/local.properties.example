@@ -1,3 +1,0 @@
-# Copy these two lines into local.properties (created by Android Studio, not committed to Git)
-foursquare.clientId=YOUR_FOURSQUARE_CLIENT_ID
-foursquare.clientSecret=YOUR_FOURSQUARE_CLIENT_SECRET
